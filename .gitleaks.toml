@@ -1,0 +1,29 @@
+title = "tg-alert-bot"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "tg-string-session"
+description = "GramJS StringSession value"
+regex = '''\b1[A-Za-z0-9+/_=-]{200,}'''
+
+[[rules]]
+id = "tg-session-assignment"
+description = "TG_SESSION assigned to a value"
+regex = '''(?i)TG_SESSION\s*[=:]\s*['"]?[A-Za-z0-9+/_=-]{20,}'''
+
+[[rules]]
+id = "tg-api-hash-assignment"
+description = "TG_API_HASH assigned to a value"
+regex = '''(?i)TG_API_HASH\s*[=:]\s*['"]?[0-9a-f]{32}'''
+
+[[rules]]
+id = "tg-bot-token"
+description = "Telegram bot token"
+regex = '''\b\d{6,12}:[A-Za-z0-9_-]{35}\b'''
+
+[[allowlists]]
+description = "Placeholder badge token in the stock Nest README"
+regexTarget = "line"
+regexes = ['''token=abc123def456''']

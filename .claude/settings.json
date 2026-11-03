@@ -3,14 +3,54 @@
     "allow": [
       "Bash(npm test)",
       "Bash(npm run lint)",
+      "Bash(npm run lint:check)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run build)",
+      "Bash(npm run test:e2e)",
       "Bash(git status)",
-      "Bash(git diff:*)"
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ],
+    "ask": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(npm i *)"
     ],
     "deny": [
-      "Bash(rm -rf:*)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(rm -r *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(git add -A*)",
+      "Bash(git add --all*)",
+      "Bash(git add .)",
+      "Bash(git * --no-verify*)",
+      "Bash(git commit -n*)",
+      "Bash(git config core.hooksPath*)",
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(!.env.example)",
       "Read(./secrets/**)"
     ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "excludedCommands": ["git push *"],
+    "filesystem": {
+      "denyRead": ["./.env", "./.env.*", "./secrets"],
+      "allowRead": ["./.env.example"],
+      "allowWrite": ["~/.npm"]
+    },
+    "network": {
+      "allowedDomains": ["registry.npmjs.org", "github.com"],
+      "allowLocalBinding": true
+    }
   }
 }

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Blocks a commit when the staged changes contain a secret.
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed, so the commit is blocked. Run: brew install gitleaks" >&2
+  exit 1
+fi
+
+exec gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml

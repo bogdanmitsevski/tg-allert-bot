@@ -1,0 +1,30 @@
+#!/bin/sh
+# Blocks direct pushes to main and pushes of commits that contain a secret.
+set -eu
+
+ZERO=0000000000000000000000000000000000000000
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks is not installed, so the push is blocked. Run: brew install gitleaks" >&2
+  exit 1
+fi
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main | refs/heads/master)
+      echo "pre-push: direct pushes to ${remote_ref#refs/heads/} are blocked. Push a branch and merge it through a pull request." >&2
+      exit 1
+      ;;
+  esac
+
+  # A deleted branch has no new commits to scan.
+  [ "$local_sha" = "$ZERO" ] && continue
+
+  if [ "$remote_sha" = "$ZERO" ]; then
+    range="$local_sha --not --remotes"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  gitleaks git --redact --no-banner --config .gitleaks.toml --log-opts="$range"
+done
