@@ -44,5 +44,6 @@ npm run test:e2e -- app                                                     # e2
 
 - `.claude/agents/` defines `orchestrator`, `coder`, and `tester`. Start the orchestrator with `claude --agent orchestrator`: its `Agent(coder, tester)` restriction only applies when it runs as the main thread.
 - Work on a branch. `.githooks/pre-push` blocks direct pushes to `main`, and `git push` asks for confirmation.
+- On a fresh clone, run the first `npm install` in a regular terminal. The sandbox cannot write `.git/config`, so `prepare` would silently fail to enable the hooks. `git rev-parse --git-path hooks` must print `.githooks`.
 - `.githooks/pre-commit` and `pre-push` run gitleaks with `.gitleaks.toml` and block the action if gitleaks is missing (`brew install gitleaks`). Do not bypass them.
 - `.claude/settings.json` runs Bash in a sandbox: `.env` and `secrets/` are unreadable and undeletable, and direct network connections (which GramJS and `fetch` use) fail. Only npm and GitHub are allowlisted, but a command can still request another host through the sandbox proxy if it is approved. The user runs anything that needs `.env` or a real account in their own terminal.
