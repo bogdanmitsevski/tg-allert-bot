@@ -1,27 +1,33 @@
-title = "tg-alert-bot"
+title = "job-matcher"
 
+# The default rules already detect AWS access keys and Google API keys.
 [extend]
 useDefault = true
 
 [[rules]]
-id = "tg-string-session"
-description = "GramJS StringSession value"
-regex = '''\b1[A-Za-z0-9+/_=-]{200,}'''
+id = "env-secret-assignment"
+description = "A secret from .env assigned to a value"
+regex = '''(?i)\b(JWT_ACCESS_SECRET|JWT_REFRESH_SECRET|AWS_SECRET_ACCESS_KEY|GEMINI_API_KEY)[ \t]*[=:][ \t]*['"]?[^\s'"#]{16,}'''
 
 [[rules]]
-id = "tg-session-assignment"
-description = "TG_SESSION assigned to a value"
-regex = '''(?i)TG_SESSION\s*[=:]\s*['"]?[A-Za-z0-9+/_=-]{20,}'''
+id = "postgres-url-password"
+description = "PostgreSQL connection string with a password for a non-local host"
+regex = '''postgres(?:ql)?://[^:@\s/]+:[^@\s]{4,}@[^\s/:'"]+'''
 
-[[rules]]
-id = "tg-api-hash-assignment"
-description = "TG_API_HASH assigned to a value"
-regex = '''(?i)TG_API_HASH\s*[=:]\s*['"]?[0-9a-f]{32}'''
+[[rules.allowlists]]
+description = "Local development databases from docker-compose"
+regexTarget = "match"
+regexes = ['''@(localhost|127\.0\.0\.1|postgres|db)$''']
 
+# The default generic-api-key rule can jump from an empty value to the next
+# line of a .env template. A real key never spans a line break.
 [[rules]]
-id = "tg-bot-token"
-description = "Telegram bot token"
-regex = '''\b\d{6,12}:[A-Za-z0-9_-]{35}\b'''
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Match that crosses a line break"
+regexTarget = "match"
+regexes = ['''\n''']
 
 [[allowlists]]
 description = "Placeholder badge token in the stock Nest README"

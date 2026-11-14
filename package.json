@@ -1,7 +1,7 @@
 {
-  "name": "tg-alert-bot",
+  "name": "job-matcher",
   "version": "0.0.1",
-  "description": "",
+  "description": "Backend that matches uploaded CVs with vacancies from DOU, Djinni, and Work.ua",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

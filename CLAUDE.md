@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a NestJS 12 starter (TypeScript, Express) that will become a Telegram alert bot. Nothing bot-related exists yet: there is no Telegram dependency, config handling, or persistence. `description.md` holds the product description and the step-by-step implementation plan. `README.md` is the stock Nest template and has no project-specific information.
+This is a NestJS 12 starter (TypeScript, Express) that will become Job Matcher: a backend where users upload CVs and get matching vacancies from DOU, Djinni, and Work.ua. `description.md` holds the product description, architecture, data model, API, and the step-by-step implementation plan. Nothing from the plan exists yet: there is no database, auth, S3 storage, Gemini integration, or vacancy collection. `README.md` is the stock Nest template and has no project-specific information.
 
 ## Commands
 
@@ -40,10 +40,18 @@ npm run test:e2e -- app                                                     # e2
 - TypeScript runs in strict mode. `ts-jest` uses `isolatedModules`, so tests do not report type errors: run `npm run typecheck` as well.
 - ESLint allows explicit `any`. Prettier uses single quotes and trailing commas.
 
+## Testing external services
+
+- Tests never call real AWS S3, Gemini, or the vacancy sites. Wrap each of them in a Nest provider so tests can replace it.
+- Vacancy parsers are tested against saved RSS and HTML samples in `test/fixtures/`.
+- Test CVs must be synthetic. Never put a real CV or other personal data in fixtures, logs, or commits.
+- Once the plan's first step adds `docker-compose.yml`, integration and e2e tests need its PostgreSQL test database (`DATABASE_URL_TEST`). The user starts it with `docker compose up -d`.
+
 ## Agents and safety
 
 - `.claude/agents/` defines `orchestrator`, `coder`, and `tester`. Start the orchestrator with `claude --agent orchestrator`: its `Agent(coder, tester)` restriction only applies when it runs as the main thread.
 - Work on a branch. `.githooks/pre-push` blocks direct pushes to `main`, and `git push` asks for confirmation.
 - On a fresh clone, run the first `npm install` in a regular terminal. The sandbox cannot write `.git/config`, so `prepare` would silently fail to enable the hooks. `git rev-parse --git-path hooks` must print `.githooks`.
 - `.githooks/pre-commit` and `pre-push` run gitleaks with `.gitleaks.toml` and block the action if gitleaks is missing (`brew install gitleaks`). Do not bypass them.
-- `.claude/settings.json` runs Bash in a sandbox: `.env` and `secrets/` are unreadable and undeletable, and direct network connections (which GramJS and `fetch` use) fail. Only npm and GitHub are allowlisted, but a command can still request another host through the sandbox proxy if it is approved. The user runs anything that needs `.env` or a real account in their own terminal.
+- `.claude/settings.json` runs Bash in a sandbox: `.env` and `secrets/` are unreadable and undeletable, and direct network connections fail. Only npm and GitHub are allowlisted, but a command can still request another host through the sandbox proxy if it is approved.
+- The user runs anything that needs `.env`, real AWS or Gemini, the vacancy sites, or Docker in their own terminal.
