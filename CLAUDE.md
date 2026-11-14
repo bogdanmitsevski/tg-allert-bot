@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a NestJS 12 starter (TypeScript, Express) that will become Job Matcher: a backend where users upload CVs and get matching vacancies from DOU, Djinni, and Work.ua. `description.md` holds the product description, architecture, data model, API, and the step-by-step implementation plan. Nothing from the plan exists yet: there is no database, auth, S3 storage, Gemini integration, or vacancy collection. `README.md` is the stock Nest template and has no project-specific information.
+This is a NestJS 12 starter (TypeScript, Fastify) that will become Job Matcher: a backend where users upload CVs and get matching vacancies from DOU, Djinni, and Work.ua. `description.md` holds the product description, architecture, data model, API, and the step-by-step implementation plan. Nothing from the plan exists yet: there is no database, auth, S3 storage, Gemini integration, or vacancy collection. `README.md` is the stock Nest template and has no project-specific information.
 
 ## Commands
 
@@ -12,7 +12,7 @@ Requires Node 24.9 or later (`.nvmrc`), because Jest can only load the ESM-only 
 
 ```bash
 npm install           # also points git at the hooks in .githooks/
-npm run start:dev     # run with watch mode (listens on port 3000, hardcoded in src/main.ts)
+npm run start:dev     # run with watch mode (listens on 0.0.0.0:3000, hardcoded in src/main.ts)
 npm run build         # compile to dist/ (the output directory is cleared on each build)
 npm run start:prod    # run the compiled build (node dist/main)
 npm run typecheck     # type-check src/ and test/ (Jest does not check types)
@@ -35,7 +35,8 @@ npm run test:e2e -- app                                                     # e2
 ## Structure and conventions
 
 - `src/main.ts` bootstraps `AppModule`, the root module, which wires up `AppController` and `AppService`.
-- Unit tests are `*.spec.ts` files next to the source in `src/` (Jest config is in `package.json`). E2e tests are `*.e2e-spec.ts` files in `test/` (config in `test/jest-e2e.json`) and use `supertest` against the full `AppModule`.
+- The HTTP layer is Fastify (`@nestjs/platform-fastify`). Express-only packages such as `multer`, `helmet`, or Express middleware do not work: use the Fastify counterparts, for example `FileInterceptor` from `@nestjs/platform-fastify/multipart` and `@fastify/helmet`.
+- Unit tests are `*.spec.ts` files next to the source in `src/` (Jest config is in `package.json`). E2e tests are `*.e2e-spec.ts` files in `test/` (config in `test/jest-e2e.json`). They create the full `AppModule` with `FastifyAdapter`, await `getInstance().ready()`, and send requests with `app.inject()` instead of `supertest`.
 - The project compiles to CommonJS and loads the ESM-only Nest packages through `require(esm)`. `jest.mock` does not apply to ESM modules, so replace dependencies through Nest DI (`overrideProvider`).
 - TypeScript runs in strict mode. `ts-jest` uses `isolatedModules`, so tests do not report type errors: run `npm run typecheck` as well.
 - ESLint allows explicit `any`. Prettier uses single quotes and trailing commas.
